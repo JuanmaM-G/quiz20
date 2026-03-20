@@ -1,40 +1,47 @@
 import { useState } from "react";
-import {useNavigate} from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 
 export default function Registrarse() {
-  const navigate     = useNavigate();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ nombre: '', documento: '', telefono: '', contrasena: '' });
+  const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
+  const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    nombre: '', apellido: '', telefono: '', email: '', contrasena: ''
-  });
-}
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validar()) return;
-
     setLoading(true);
-    setMensaje({ texto: '', tipo: '' });
 
-    const result = await register(formData);
+    try {
+      const response = await fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          Nombre:    formData.nombre,
+          Documento: parseInt(formData.documento),
+          Telefono:  parseInt(formData.telefono),
+          Password:  formData.contrasena,
+        }),
+      });
 
-    if (result.ok) {
-      setMensaje({ texto: 'Usuario registrado correctamente', tipo: 'success' });
-      setTimeout(() => navigate('/login'), 1000);
-    } else {
-      setMensaje({ texto: result.error || 'Error al registrar', tipo: 'error' });
+      const data = await response.json();
+
+      if (response.ok) {
+        setMensaje({ texto: 'Usuario registrado correctamente', tipo: 'success' });
+        setTimeout(() => navigate('/login'), 1000);
+      } else {
+        setMensaje({ texto: data.error || 'Error al registrar', tipo: 'error' });
+      }
+    } catch {
+      setMensaje({ texto: 'Error de conexión', tipo: 'error' });
     }
+
     setLoading(false);
   };
-
-  const CAMPOS = [
-    { name: 'nombre',     placeholder: 'Nombre',             type: 'text',     maxLength: 100, autoComplete: 'given-name',   required: true  },
-    { name: 'apellido',   placeholder: 'Apellido',           type: 'text',     maxLength: 100, autoComplete: 'family-name',  required: true  },
-    { name: 'telefono',   placeholder: 'Teléfono (opcional)',type: 'text',     maxLength: 20,  autoComplete: 'tel',          required: false },
-    { name: 'email',      placeholder: 'Correo electrónico', type: 'email',    maxLength: 255, autoComplete: 'email',        required: true  },
-    { name: 'contrasena', placeholder: 'Contraseña',         type: 'password', maxLength: 128, autoComplete: 'new-password', required: true  },
-  ];
 
   return (
     <section className="min-h-screen bg-[#0c0b0a] flex items-center justify-center py-20 px-4">
@@ -47,53 +54,24 @@ export default function Registrarse() {
 
         {mensaje.texto && (
           <div className={`mb-6 text-center font-bold p-3 rounded-lg text-sm ${
-            mensaje.tipo === 'success'
-              ? 'bg-green-900/40 text-green-400'
-              : 'bg-red-900/40 text-red-400'
+            mensaje.tipo === 'success' ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'
           }`}>
             {mensaje.texto}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {CAMPOS.map(({ name, placeholder, type, maxLength, autoComplete, required }) => (
-            <div key={name}>
-              <input
-                type={type} name={name} placeholder={placeholder}
-                required={required} maxLength={maxLength} autoComplete={autoComplete}
-                className={inputCls(name)}
-                onChange={handleChange}
-              />
-              {/* Indicador de fuerza solo para contraseña */}
-              {name === 'contrasena' && formData.contrasena && (
-                <div className="mt-2">
-                  <div className="flex gap-1">
-                    {[1,2,3,4].map((n) => (
-                      <div
-                        key={n}
-                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                          fuerza >= n ? fuerzaColor[fuerza] : 'bg-white/10'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-[10px] mt-1 ml-1 text-white/40" style={{ fontFamily: 'DM Mono, monospace' }}>
-                    Contraseña {fuerzaLabel[fuerza]}
-                  </p>
-                </div>
-              )}
-              {errores[name] && (
-                <p className="text-red-400 text-[11px] mt-1 ml-1" style={{ fontFamily: 'DM Mono, monospace' }}>
-                  {errores[name]}
-                </p>
-              )}
-            </div>
-          ))}
+          <input type="text"     name="nombre"     placeholder="Nombre"     required onChange={handleChange}
+            className="w-full bg-white/5 text-white placeholder-white/30 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500/60" />
+          <input type="text"     name="documento"  placeholder="Documento"  required onChange={handleChange}
+            className="w-full bg-white/5 text-white placeholder-white/30 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500/60" />
+          <input type="text"     name="telefono"   placeholder="Teléfono"            onChange={handleChange}
+            className="w-full bg-white/5 text-white placeholder-white/30 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500/60" />
+          <input type="password" name="contrasena" placeholder="Contraseña" required onChange={handleChange}
+            className="w-full bg-white/5 text-white placeholder-white/30 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500/60" />
 
-          <button
-            type="submit" disabled={loading}
-            className="w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-bold rounded-xl transition-all active:scale-95"
-          >
+          <button type="submit" disabled={loading}
+            className="w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-bold rounded-xl transition-all active:scale-95">
             {loading ? 'Registrando...' : 'Registrarse'}
           </button>
         </form>
@@ -106,3 +84,4 @@ export default function Registrarse() {
       </div>
     </section>
   );
+}

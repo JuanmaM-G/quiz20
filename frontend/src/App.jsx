@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import login from './components/login'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './components/login';
+import Registro from './components/registro';
+import Index from './components/index';
 
-
-function Layout() {
+function App() {
   return (
-    <div className="min-h-screen bg-[#0c0b0a] text-white">
-      <main>
-        <Routes>
-          <Route path="/login"       element={<login />} />
-        </Routes>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login"       element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/index"    element={<Index />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -9,4 +9,8 @@
 denpendencias instaladas, necesarias para el funcionamiento del sistema:
 
 
-pip install flask flask-session mysql-connector-python werkzeug
+pip install flask flask-session flask-cors mysql-connector-python werkzeug
+
+npm install react-router-dom
+
+pip install -r requirements.txt
