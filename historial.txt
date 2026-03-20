@@ -1,0 +1,12 @@
+1- se creo el registro.jsx
+    1.1- se conecto el registro.jsx a la base de datos
+
+
+
+
+
+------------------------------------------------------------------
+denpendencias instaladas, necesarias para el funcionamiento del sistema:
+
+
+pip install flask flask-session mysql-connector-python werkzeug
