@@ -90,6 +90,24 @@ def login():
         cursor.close()
         conn.close()
 
+@app.route('/api/usuarios', methods=['GET'])
+def get_usuarios():
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute('SELECT ID_usuario, Nombre, Documento, Telefono FROM usuario')
+        usuarios = cursor.fetchall()
+
+        return jsonify(usuarios), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
